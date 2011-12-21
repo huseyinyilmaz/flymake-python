@@ -9,7 +9,9 @@ import logging
 
 from subprocess import Popen, PIPE
 
+
 MAX_DESCRIPTION_LENGTH = 60
+
 
 class LintRunner(object):
     """ Base class provides common functionality to run
@@ -173,7 +175,7 @@ class PycheckerRunner(LintRunner):
 
 
 class PyflakesRunner(LintRunner):
-    command = 'python'
+    command = 'pyflakes'
 
     output_matcher = re.compile(
         r'(?P<filename>.+):'
@@ -362,6 +364,7 @@ def main():
         run(PyflakesRunner)
 
     sys.exit()
+
 
 if __name__ == '__main__':
     main()
