@@ -809,6 +809,29 @@ Return t if it has at least one flymake overlay, nil if no overlay."
   "Face used for marking warning lines."
   :group 'flymake)
 
+;underline version of faces
+(defface flymake-errline-underline
+  '((((class color) (background dark)) (:underline "Firebrick4"))
+    (((class color) (background light)) (:underline "LightPink"))
+    (t (:bold t)))
+  "Face used for marking error lines."
+  :group 'flymake)
+
+(defface flymake-warnline-underline
+  '((((class color) (background dark)) (:underline "orange"))
+    (((class color) (background light)) (:underline "orange"))
+    (t (:bold t)))
+  "Face used for marking warning lines."
+  :group 'flymake)
+
+(defface flymake-infoline-underline
+  '((((class color) (background dark)) (:underline "DarkGreen"))
+    (((class color) (background light)) (:underline "LightGreen"))
+    (t (:bold t)))
+  "Face used for marking warning lines."
+  :group 'flymake)
+
+
 (defun flymake-highlight-line (line-no line-err-info-list)
   "Highlight line LINE-NO in current buffer.
 Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
@@ -843,10 +866,10 @@ Perhaps use text from LINE-ERR-INFO-LIST to enhance highlighting."
       (setq end (point)))
 
     (if (> (flymake-get-line-err-count line-err-info-list "e") 0)
-	(setq face 'flymake-errline)
+	(setq face 'flymake-errline-underline)
       (if (> (flymake-get-line-err-count line-err-info-list "w") 0)
-	  (setq face 'flymake-warnline)
-	(setq face 'flymake-infoline)))
+	  (setq face 'flymake-warnline-underline)
+	(setq face 'flymake-infoline-underline)))
 
     (flymake-make-overlay beg end tooltip-text face nil)))
 
