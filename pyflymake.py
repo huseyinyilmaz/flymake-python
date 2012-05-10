@@ -212,8 +212,8 @@ class Pep8Runner(LintRunner):
 
     command = 'pep8'
     # sane_default_ignore_codes = set([
-    #     'RW29', 'W391',
-    #     'W291', 'WO232'])
+    #      'RW29', 'W391',
+    #      'W291', 'WO232'])
 
     output_matcher = re.compile(
         r'(?P<filename>.+):'
