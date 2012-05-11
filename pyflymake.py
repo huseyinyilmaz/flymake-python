@@ -7,8 +7,14 @@ import sys
 import imp
 import logging
 
-from subprocess import Popen, PIPE
+logger = logging.getLogger(__name__)
+view_log_handler = logging.FileHandler('/tmp/emacs.log')
+view_log_handler.setFormatter(
+    logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s'))
+logger.addHandler(view_log_handler)
+logger.setLevel(logging.DEBUG)
 
+from subprocess import Popen, PIPE
 
 MAX_DESCRIPTION_LENGTH = 60
 
@@ -27,6 +33,8 @@ class LintRunner(object):
                      "%(description)s at %(filename)s line %(line_number)s.")
 
     def __init__(self, config):
+        # loggin
+        self.name = self.__class__.__name__
         self.config = config
         if self.config.VIRTUALENV:
             # This is the least we can get away with (hopefully).
@@ -59,6 +67,8 @@ class LintRunner(object):
 
     @classmethod
     def process_output(cls, line):
+        logger.debug('process output() processor=%s line=%s' %\
+                         (cls.__name__, line))
         m = cls.output_matcher.match(line)
         if m:
             fixed_data = dict.fromkeys(('level', 'error_type',
@@ -72,18 +82,21 @@ class LintRunner(object):
                 fixed_data['description'] = (
                     '%s...' %
                     fixed_data['description'][:MAX_DESCRIPTION_LENGTH - 3])
+            logger.debug('fixed_data %s' % str(fixed_data))
             print cls.output_format % fixed_data
 
     def run(self, filename):
+        logger.info('run() %s for file %s' % (self.name, filename))
         cmdline = [self.command]
         cmdline.extend(self.run_flags)
         cmdline.append(filename)
 
         env = dict(os.environ, **self.env)
         logging.debug(' '.join(cmdline))
+        logger.debug(' '.join(cmdline))
         process = Popen(cmdline, stdout=PIPE, stderr=PIPE, env=env)
-
         for line in getattr(process, self.stream):
+            logger.info(line)
             self.process_output(line)
 
         if logging.getLogger().isEnabledFor(logging.DEBUG):
@@ -175,8 +188,8 @@ class PycheckerRunner(LintRunner):
 
 
 class PyflakesRunner(LintRunner):
+#    command = 'python'
     command = 'pyflakes'
-
     output_matcher = re.compile(
         r'(?P<filename>.+):'
         r'(?P<line_number>\d+):'
@@ -195,10 +208,13 @@ class PyflakesRunner(LintRunner):
 
     @property
     def run_flags(self):
-        return ('-c',
-                ('import sys;'
-                 'from pyflakes.scripts import pyflakes;'
-                 'pyflakes.main()'))
+        return tuple()
+        # return ('-c',
+        #         ('"'
+        #          'import sys;'
+        #          'from pyflakes.scripts import pyflakes;'
+        #          'pyflakes.main([])'
+        #          '" '))
 
 
 class Pep8Runner(LintRunner):
@@ -212,8 +228,8 @@ class Pep8Runner(LintRunner):
 
     command = 'pep8'
     # sane_default_ignore_codes = set([
-    #      'RW29', 'W391',
-    #      'W291', 'WO232'])
+    #         'RW29', 'W391',
+    #         'W291', 'WO232'])
 
     output_matcher = re.compile(
         r'(?P<filename>.+):'
@@ -233,7 +249,8 @@ class Pep8Runner(LintRunner):
 
     @property
     def run_flags(self):
-        return '--repeat', '--ignore=' + ','.join(self.config.IGNORE_CODES)
+        return ('--repeat',)
+#'--ignore=' + ','.join(self.config.IGNORE_CODES)
 
 
 class TestRunner(LintRunner):
@@ -288,7 +305,7 @@ class DefaultConfig(object):
         self.TEST_RUNNER_FLAGS = []
         self.TEST_RUNNER_OUTPUT = 'stderr'
         self.ENV = {}
-        self.PYLINT = True
+        self.PYLINT = False
         self.PYCHECKER = False
         self.PEP8 = True
         self.PYFLAKES = True
@@ -355,16 +372,25 @@ def main():
         runner.run(args[0])
 
     if config.PYLINT:
+        logger.info('run pylint')
         run(PylintRunner)
     if config.PYCHECKER:
+        logger.info('run pychecker')
         run(PycheckerRunner)
     if config.PEP8:
+        logger.info('run pep8')
         run(Pep8Runner)
     if config.PYFLAKES:
+        logger.info('run pyflakes')
         run(PyflakesRunner)
 
     sys.exit()
 
-
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+        logger.info
+    except Exception as e:
+        logger.warning('AN EXCEPTION OCCOURED')
+        logger.exception(e)
+        raise
