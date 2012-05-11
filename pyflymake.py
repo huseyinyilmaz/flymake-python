@@ -391,6 +391,5 @@ if __name__ == '__main__':
         main()
         logger.info
     except Exception as e:
-        logger.warning('AN EXCEPTION OCCOURED')
-        logger.exception(e)
-        raise
+        logger.exception('AN EXCEPTION OCCOURED')
+
