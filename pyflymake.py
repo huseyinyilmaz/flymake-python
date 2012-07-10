@@ -12,7 +12,7 @@ view_log_handler = logging.FileHandler('/tmp/emacs.log')
 view_log_handler.setFormatter(
     logging.Formatter('%(asctime)s %(name)-12s %(levelname)-8s %(message)s'))
 logger.addHandler(view_log_handler)
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.ERROR)
 
 from subprocess import Popen, PIPE
 
