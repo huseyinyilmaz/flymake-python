@@ -1,3 +1,17 @@
+============================================================================
+Changes from original
+============================================================================
+
+* Instead of changing background color of problematic code, I am underlining
+the problem
+* Using yellow for warnings and green for infos.
+* I was having problems with files that is reached thrugh a soft linked
+directory, so I added an hack to change relative path to absolute path in
+python code.
+* Added extra logging code for debugging directed log to a file.
+* Added some exception handling.
+* Added requirements.pip file which include pylint, pyflakes, pep8
+
 ==============================================================================
  flymake-python: highlight Python syntax, style and unit test errors in Emacs
 ==============================================================================
@@ -15,7 +29,7 @@ The following external tools are supported:
 * pep8.py
 * PyChecker
 * PyLint
-* PyFlakes
+* PyFlakes 
 * nose
 
 Python virtual environments are supported, but this is largely

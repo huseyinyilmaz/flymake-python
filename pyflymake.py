@@ -310,7 +310,7 @@ class DefaultConfig(object):
         self.TEST_RUNNER_FLAGS = []
         self.TEST_RUNNER_OUTPUT = 'stderr'
         self.ENV = {}
-        self.PYLINT = False
+        self.PYLINT = True
         self.PYCHECKER = False
         self.PEP8 = True
         self.PYFLAKES = True
@@ -323,7 +323,7 @@ DEFAULT_CONFIG = dict(
     TEST_RUNNER_FLAGS=[],
     TEST_RUNNER_OUTPUT='stderr',
     ENV={},
-    PYLINT=False,
+    PYLINT=True,
     PYCHECKER=False,
     PEP8=True,
     PYFLAKES=True,
