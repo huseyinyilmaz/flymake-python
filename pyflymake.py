@@ -19,6 +19,14 @@ from subprocess import Popen, PIPE
 MAX_DESCRIPTION_LENGTH = 60
 
 
+def rel_to_ab(filename):
+    """
+    Gets a relative filename and turnsit into absolute filename
+    """
+    name = filename.strip('../')
+    return name if name[0] == '/' else '/%s' % name
+
+
 class LintRunner(object):
     """ Base class provides common functionality to run
           python code checkers. """
@@ -82,10 +90,10 @@ class LintRunner(object):
                 fixed_data['description'] = (
                     '%s...' %
                     fixed_data['description'][:MAX_DESCRIPTION_LENGTH - 3])
-            logger.debug('fixed_data %s' % str(fixed_data))
             print cls.output_format % fixed_data
 
     def run(self, filename):
+        filename = rel_to_ab(filename)
         logger.info('run() %s for file %s' % (self.name, filename))
         cmdline = [self.command]
         cmdline.extend(self.run_flags)
@@ -188,8 +196,7 @@ class PycheckerRunner(LintRunner):
 
 
 class PyflakesRunner(LintRunner):
-#    command = 'python'
-    command = 'pyflakes'
+    command = 'python'
     output_matcher = re.compile(
         r'(?P<filename>.+):'
         r'(?P<line_number>\d+):'
@@ -208,13 +215,11 @@ class PyflakesRunner(LintRunner):
 
     @property
     def run_flags(self):
-        return tuple()
-        # return ('-c',
-        #         ('"'
-        #          'import sys;'
-        #          'from pyflakes.scripts import pyflakes;'
-        #          'pyflakes.main([])'
-        #          '" '))
+        return ('-c',
+                ('import sys;'
+                 'from pyflakes.scripts import pyflakes;'
+                 'pyflakes.main()'
+                  ))
 
 
 class Pep8Runner(LintRunner):
@@ -318,7 +323,7 @@ DEFAULT_CONFIG = dict(
     TEST_RUNNER_FLAGS=[],
     TEST_RUNNER_OUTPUT='stderr',
     ENV={},
-    PYLINT=True,
+    PYLINT=False,
     PYCHECKER=False,
     PEP8=True,
     PYFLAKES=True,
@@ -372,16 +377,12 @@ def main():
         runner.run(args[0])
 
     if config.PYLINT:
-        logger.info('run pylint')
         run(PylintRunner)
     if config.PYCHECKER:
-        logger.info('run pychecker')
         run(PycheckerRunner)
     if config.PEP8:
-        logger.info('run pep8')
         run(Pep8Runner)
     if config.PYFLAKES:
-        logger.info('run pyflakes')
         run(PyflakesRunner)
 
     sys.exit()
@@ -389,7 +390,6 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-        logger.info
     except Exception as e:
         logger.exception('AN EXCEPTION OCCOURED')
 
