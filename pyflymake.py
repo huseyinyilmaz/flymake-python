@@ -377,14 +377,14 @@ def main():
         runner = runner_class(config)
         runner.run(args[0])
 
-    if config.PYLINT:
-        run(PylintRunner)
-    if config.PYCHECKER:
-        run(PycheckerRunner)
     if config.PEP8:
         run(Pep8Runner)
+    if config.PYLINT:
+        run(PylintRunner)
     if config.PYFLAKES:
         run(PyflakesRunner)
+    if config.PYCHECKER:
+        run(PycheckerRunner)
 
     sys.exit()
 
